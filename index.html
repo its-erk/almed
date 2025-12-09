@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Diagnostics – Glucometers & BP Monitors</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fc;
+        }
+        .hero {
+            height: 100vh;
+            background: url('assets/img/flat-lay-pills-stethoscope-arrangement.jpg') center center/cover no-repeat;
+            display: flex;
+            align-items: center;
+            position: relative;
+            color: #fff;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0;
+            height: 100%; width: 100%;
+            background: rgba(0,0,0,0.45);
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 700px;
+            margin: auto;
+        }
+
+        .product-card {
+            border-radius: 15px;
+            transition: 0.3s;
+        }
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .footer {
+            background: #111;
+            color: #bbb;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">AlMonitors</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navMenu">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#products">Products</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero text-center">
+        <div class="container hero-content">
+            <h1 class="fw-bold display-4">Reliable Monitoring Kits For A Healthy You</h1>
+            <p class="lead mt-3">
+                Affordable. Accurate. Trusted by individuals and health facilities.
+            </p>
+            <a href="#products" class="btn btn-light btn-lg mt-4 px-4">Browse Products</a>
+        </div>
+    </section>
+
+    <!-- PRODUCTS -->
+    <section id="products" class="py-5">
+        <div class="container">
+            <h2 class="fw-bold text-center mb-4">Our Products</h2>
+            <div class="row g-4">
+
+                <!-- Product 1 -->
+                <div class="col-md-4">
+                    <div class="card product-card p-3 shadow-sm">
+                        <img src="assets/img/products/top-view-tensiometer-checking-blood-pressure.jpg" class="card-img-top" alt="Glucometer">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">Digital Glucometer</h5>
+                            <p class="card-text">Fast, accurate blood sugar readings with test strips.</p>
+                            <a href="#" class="btn btn-outline-primary w-100">Buy Now</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 2 -->
+                <div class="col-md-4">
+                    <div class="card product-card p-3 shadow-sm">
+                        <img src="assets/img/products/top-view-tensiometer-checking-blood-pressure.jpg" class="card-img-top" alt="BP Monitor">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">Automatic BP Monitor</h5>
+                            <p class="card-text">Easy-to-use, accurate blood pressure monitoring.</p>
+                            <a href="#" class="btn btn-outline-primary w-100">Buy Now</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 3 -->
+                <div class="col-md-4">
+                    <div class="card product-card p-3 shadow-sm">
+                        <img src="assets/img/products/top-view-tensiometer-checking-blood-pressure.jpg" class="card-img-top" alt="Clinic Kit">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">Hospital Diagnostic Kit</h5>
+                            <p class="card-text">Suitable for clinics and health centres.</p>
+                            <a href="#" class="btn btn-outline-primary w-100">Buy Now</a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="fw-bold text-center mb-4">About Us</h2>
+            <p class="text-center mx-auto" style="max-width: 700px;">
+                We supply high-quality diagnostic devices for home use and medical facilities.
+                Our products are sourced from certified manufacturers and tested for accuracy.
+            </p>
+        </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="py-5">
+        <div class="container">
+            <h2 class="fw-bold text-center mb-4">Contact Us</h2>
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <form action="send_message.php" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Your Name</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Message</label>
+                            <textarea class="form-control" name="message" rows="4" required></textarea>
+                        </div>
+                        <button class="btn btn-primary w-100">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer py-3 text-center">
+        <div class="container">
+            <small>© 2025 AlMonitors. All rights reserved.</small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
