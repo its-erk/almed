@@ -6,18 +6,26 @@
     <title>Karibu | Afyako</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="shortcut icon" href="dist/assets/images/favicon.ico" />
 
     <style>
         body {
             background: #f8f9fc;
         }
+        
         .hero {
             height: 100vh;
-            background: url('assets/img/older-person-checking-their-blood-pressure-with-tensiometer.jpg') center center/cover no-repeat;
+            background-image: url('assets/img/close-up-medic-expert-using-glucometer-sugar-level-measurements.jpg');
+            background-position: center top;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: scroll;
             display: flex;
             align-items: center;
             position: relative;
             color: #fff;
+            overflow: hidden;
+            will-change: background-position;
         }
 
         .hero::before {
@@ -89,7 +97,6 @@
             background: #0d6efd;
             color: #fff;
         }
-
     </style>
 </head>
 <body>
@@ -97,7 +104,7 @@
     <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="index.html">Afyako</a>
+            <a class="navbar-brand fw-bold" href="index.html"><img src="dist/assets/images/afyako-logo.svg" alt="Afyako logo"></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -119,7 +126,7 @@
             <p class="lead mt-3">
                 Affordable. Accurate. Trusted by individuals and health facilities.
             </p>
-            <a href="#products" class="btn btn-primary btn-lg mt-4 px-4">Browse Products</a>
+            <a href="#products" class="btn btn-light rounded-pill btn-lg mt-4 px-4">Browse Products</a>
         </div>
     </section>
 
@@ -143,8 +150,8 @@
                         <h5 class="fw-bold mb-1">Digital Glucometer</h5>
                         <p class="text-muted small">Fast, accurate blood sugar monitoring for home or clinic use.</p>
                         <div class="fw-bold text-primary fs-5 mb-3">KES 2,999</div>
-                        <button class="btn btn-primary w-100 mb-2"><i class="bi bi-cart-plus me-2"></i>Add to Cart</button>
-                        <button class="btn btn-outline-primary w-100">View Details</button>
+                        <button class="btn btn-primary rounded-pill w-100 mb-2"><i class="bi bi-cart-plus me-2"></i>Add to Cart</button>
+                        <button class="btn btn-outline-primary rounded-pill w-100">View Details</button>
                     </div>
                 </div>
             </div>
@@ -162,8 +169,8 @@
                         <h5 class="fw-bold mb-1">Automatic BP Monitor</h5>
                         <p class="text-muted small">Comfortable, accurate and quick blood pressure readings.</p>
                         <div class="fw-bold text-primary fs-5 mb-3">KES 2,499</div>
-                        <button class="btn btn-primary w-100 mb-2"><i class="bi bi-cart-plus me-2"></i>Add to Cart</button>
-                        <button class="btn btn-outline-primary w-100">View Details</button>
+                        <button class="btn btn-primary rounded-pill w-100 mb-2"><i class="bi bi-cart-plus me-2"></i>Add to Cart</button>
+                        <button class="btn btn-outline-primary rounded-pill w-100">View Details</button>
                     </div>
                 </div>
             </div>
@@ -191,7 +198,7 @@
                         <label class="form-label">Message</label>
                         <textarea class="form-control" name="message" rows="4" required></textarea>
                     </div>
-                    <button class="btn btn-primary w-100">Send Message</button>
+                    <button class="btn btn-primary rounded-pill w-100">Send Message</button>
                 </form>
             </div>
         </div>
@@ -245,7 +252,14 @@
     </div>
 </footer>
 
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const hero = document.querySelector('.hero');
+
+    window.addEventListener('scroll', () => {
+        const scrollY = window.scrollY;
+        hero.style.backgroundPosition = `center ${scrollY * 0.4}px`;
+    });
+</script>
 </body>
 </html>

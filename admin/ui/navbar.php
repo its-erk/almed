@@ -6,11 +6,11 @@
       </button>
     </div>
     <div>
-      <a class="navbar-brand brand-logo" href="../dist/index.html">
-        <img src="../dist/assets/images/logo.svg" alt="logo" />
+      <a class="navbar-brand brand-logo" href="dashboard.php">
+        <img src="../dist/assets/images/afyako-logo.svg" alt="logo" />
       </a>
-      <a class="navbar-brand brand-logo-mini" href="../dist/index.html">
-        <img src="../dist/assets/images/logo-mini.svg" alt="logo" />
+      <a class="navbar-brand brand-logo-mini" href="dashboard.php">
+        <img src="../dist/assets/images/afyako-logo-mini.svg" alt="logo" />
       </a>
     </div>
   </div>
