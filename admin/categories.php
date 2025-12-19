@@ -1,3 +1,64 @@
+<?php
+session_start();
+require_once('../dist/config.php');
+
+// Only allow admin users
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+  header('Location: ../auth/login.php');
+  exit();
+}
+
+$error = '';
+$success = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $name = trim($_POST['name'] ?? '');
+  $description = trim($_POST['description'] ?? '');
+  $status = $_POST['status'] ?? 'active';
+
+    // Basic validation
+  if (empty($name)) {
+    $error = "Category name is required.";
+  } elseif (!in_array($status, ['active', 'inactive'])) {
+    $error = "Invalid status selected.";
+  } else {
+    try {
+            // Check if category already exists
+      $stmt = $pdo->prepare("SELECT id FROM categories WHERE name = :name LIMIT 1");
+      $stmt->execute(['name' => $name]);
+      if ($stmt->fetch()) {
+        $error = "Category with this name already exists.";
+      } else {
+                // Insert new category
+        $insert = $pdo->prepare("
+          INSERT INTO categories (name, description, status)
+          VALUES (:name, :description, :status)
+          ");
+        $insert->execute([
+          'name' => $name,
+          'description' => $description,
+          'status' => $status
+        ]);
+        $success = "Category '$name' added successfully!";
+      }
+    } catch (PDOException $e) {
+      error_log("Category insert error: " . $e->getMessage());
+      $error = "An internal error occurred. Please try again later.";
+    }
+  }
+}
+
+// Fetch all categories
+try {
+  $stmt = $pdo->query("SELECT * FROM categories ORDER BY created_at DESC");
+  $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+  error_log("Failed to fetch categories: " . $e->getMessage());
+  $categories = [];
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,6 +94,20 @@
       <!-- partial -->
       <div class="main-panel">
         <div class="content-wrapper">
+
+          <!-- Alerts -->
+          <?php if(!empty($error)): ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <?= htmlspecialchars($error) ?>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          <?php elseif(!empty($success)): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              <?= htmlspecialchars($success) ?>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          <?php endif; ?>
+
           <div class="row">
             <div class="col-12 grid-margin stretch-card">
               <div class="card">
@@ -61,27 +136,30 @@
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
-                          <td>1</td>
-                          <td><strong>Monitoring Devices</strong></td>
-                          <td>Blood pressure & glucose monitoring tools</td>
-                          <td><span class="badge bg-success">Active</span></td>
-                          <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary">Edit</button>
-                            <button class="btn btn-sm btn-outline-danger">Delete</button>
-                          </td>
-                        </tr>
-
-                        <tr>
-                          <td>2</td>
-                          <td><strong>Diagnostic Kits</strong></td>
-                          <td>Rapid diagnostic and test kits</td>
-                          <td><span class="badge bg-secondary">Inactive</span></td>
-                          <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary">Edit</button>
-                            <button class="btn btn-sm btn-outline-danger">Delete</button>
-                          </td>
-                        </tr>
+                        <?php if (!empty($categories)): ?>
+                          <?php foreach ($categories as $index => $cat): ?>
+                            <tr>
+                              <td><?= $index + 1 ?></td>
+                              <td><strong><?= htmlspecialchars($cat['name']) ?></strong></td>
+                              <td><?= htmlspecialchars($cat['description']) ?></td>
+                              <td>
+                                <?php if ($cat['status'] === 'active'): ?>
+                                  <span class="badge bg-success">Active</span>
+                                <?php else: ?>
+                                  <span class="badge bg-secondary">Inactive</span>
+                                <?php endif; ?>
+                              </td>
+                              <td class="text-end">
+                                <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                <button class="btn btn-sm btn-outline-danger">Delete</button>
+                              </td>
+                            </tr>
+                          <?php endforeach; ?>
+                        <?php else: ?>
+                          <tr>
+                            <td colspan="5" class="text-center">No categories found.</td>
+                          </tr>
+                        <?php endif; ?>
                       </tbody>
                     </table>
                   </div>
@@ -93,47 +171,48 @@
           </div>
 
           <!-- Add Category Modal -->
-<div class="modal fade" id="addCategoryModal" tabindex="-1">
-  <div class="modal-dialog modal-md modal-dialog-centered">
-    <div class="modal-content">
+          <div class="modal fade" id="addCategoryModal" tabindex="-1">
+            <div class="modal-dialog modal-md modal-dialog-centered">
+              <div class="modal-content">
 
-      <div class="modal-header">
-        <h5 class="modal-title">Add Category</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
+                <div class="modal-header">
+                  <h5 class="modal-title">Add Category</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
 
-      <div class="modal-body">
-        <form>
+                <div class="modal-body">
+                  <form method="POST">
 
-          <div class="form-group mb-3">
-            <label>Category Name</label>
-            <input type="text" class="form-control" placeholder="e.g. Monitoring Devices">
+                    <div class="form-group mb-3">
+                      <label>Category Name</label>
+                      <input type="text" name="name" class="form-control" placeholder="e.g. Monitoring Devices" required>
+                    </div>
+
+                    <div class="form-group mb-3">
+                      <label>Description</label>
+                      <textarea name="description" class="form-control" rows="3" placeholder="Short category description"></textarea>
+                    </div>
+
+                    <div class="form-group mb-3">
+                      <label>Status</label>
+                      <select name="status" class="form-select">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                      </select>
+                    </div>
+
+                    <div class="text-end">
+                      <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
+                      <button type="submit" class="btn btn-primary">Save Category</button>
+                    </div>
+
+                  </form>
+                </div>
+
+              </div>
+            </div>
           </div>
 
-          <div class="form-group mb-3">
-            <label>Description</label>
-            <textarea class="form-control" rows="3" placeholder="Short category description"></textarea>
-          </div>
-
-          <div class="form-group mb-3">
-            <label>Status</label>
-            <select class="form-select">
-              <option>Active</option>
-              <option>Inactive</option>
-            </select>
-          </div>
-
-          <div class="text-end">
-            <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-primary">Save Category</button>
-          </div>
-
-        </form>
-      </div>
-
-    </div>
-  </div>
-</div>
 
         </div>
         <!-- content-wrapper ends -->

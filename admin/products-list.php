@@ -1,3 +1,24 @@
+<?php
+session_start();
+require_once('../dist/config.php');
+
+// Check authentication and role
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+  header("Location: ../auth/login.php");
+  exit();
+}
+
+// Fetch products with category name
+$stmt = $pdo->query("
+  SELECT p.id, p.name, p.sku, p.price, p.stock, p.status, p.description,
+  c.name AS category_name
+  FROM products p
+  LEFT JOIN categories c ON c.id = p.category_id
+  ORDER BY p.id ASC
+  ");
+$products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,7 +66,7 @@
                       <p class="card-description">Manage available products</p>
                     </div>
 
-                    <a href="add-product.php" class="btn btn-primary btn-sm rounded-pill">
+                    <a href="product-add.php" class="btn btn-primary btn-sm rounded-pill">
                       <i class="ti-plus me-1"></i> Add Product
                     </a>
                   </div>
@@ -65,50 +86,42 @@
                           <th class="text-end">Actions</th>
                         </tr>
                       </thead>
-
                       <tbody>
-                        <tr>
-                          <td>1</td>
-                          <td>
-                            <strong>Digital Glucometer</strong><br>
-                            <small class="text-muted">Accurate blood sugar monitoring</small>
-                          </td>
-                          <td>GLU-001</td>
-                          <td>Monitoring</td>
-                          <td>2,999</td>
-                          <td>
-                            <span class="text-success fw-bold">45</span>
-                          </td>
-                          <td>
-                            <span class="badge bg-success">Active</span>
-                          </td>
-                          <td class="text-end">
-                            <a href="edit-product.php?id=1" class="btn btn-sm btn-outline-primary">Edit</a>
-                            <button class="btn btn-sm btn-outline-danger">Delete</button>
-                          </td>
-                        </tr>
-
-                        <tr>
-                          <td>2</td>
-                          <td>
-                            <strong>BP Monitor</strong><br>
-                            <small class="text-muted">Automatic blood pressure monitor</small>
-                          </td>
-                          <td>BP-002</td>
-                          <td>Monitoring</td>
-                          <td>2,499</td>
-                          <td>
-                            <span class="text-danger fw-bold">5</span>
-                          </td>
-                          <td>
-                            <span class="badge bg-warning text-dark">Low Stock</span>
-                          </td>
-                          <td class="text-end">
-                            <a href="edit-product.php?id=2" class="btn btn-sm btn-outline-primary">Edit</a>
-                            <button class="btn btn-sm btn-outline-danger">Delete</button>
-                          </td>
-                        </tr>
-
+                        <?php foreach ($products as $index => $p): ?>
+                          <tr>
+                            <td><?= $index + 1 ?></td>
+                            <td>
+                              <strong><?= htmlspecialchars($p['name']) ?></strong><br>
+                              <small class="text-muted">
+                                <?= htmlspecialchars(strlen($p['description']) > 50 ? substr($p['description'], 0, 50) . '…' : $p['description']) ?>
+                              </small>
+                            </td>
+                            <td><?= htmlspecialchars($p['sku']) ?></td>
+                            <td><?= htmlspecialchars($p['category_name'] ?? '-') ?></td>
+                            <td><?= number_format($p['price'], 0) ?></td>
+                            <td>
+                              <?php if ($p['stock'] <= 5): ?>
+                                <span class="text-danger fw-bold"><?= $p['stock'] ?></span>
+                              <?php else: ?>
+                                <span class="text-success fw-bold"><?= $p['stock'] ?></span>
+                              <?php endif; ?>
+                            </td>
+                            <td>
+                              <?php if ($p['status'] === 'active'): ?>
+                                <span class="badge bg-success">Active</span>
+                              <?php else: ?>
+                                <span class="badge bg-secondary">Inactive</span>
+                              <?php endif; ?>
+                            </td>
+                            <td class="text-end">
+                              <a href="product-edit.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-outline-primary">Edit</a>
+                              <form action="product-delete.php" method="POST" style="display:inline-block;">
+                                <input type="hidden" name="id" value="<?= $p['id'] ?>">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this product?');">Delete</button>
+                              </form>
+                            </td>
+                          </tr>
+                        <?php endforeach; ?>
                       </tbody>
                     </table>
                   </div>
