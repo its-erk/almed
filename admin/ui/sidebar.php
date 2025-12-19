@@ -20,7 +20,7 @@
       <div class="collapse" id="products">
         <ul class="nav flex-column sub-menu">
           <li class="nav-item"><a class="nav-link" href="products-list.php">All Products</a></li>
-          <li class="nav-item"><a class="nav-link" href="product-add.php">Add Product</a></li>
+          <li class="nav-item"><a class="nav-link" href="add-product.php">Add Product</a></li>
           <li class="nav-item"><a class="nav-link" href="categories.php">Categories</a></li>
         </ul>
       </div>
