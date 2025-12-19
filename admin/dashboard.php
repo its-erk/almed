@@ -33,6 +33,7 @@
         <!-- partial -->
         <div class="main-panel">
           <div class="content-wrapper">
+            <div class="row"></div>
           </div>
           <!-- content-wrapper ends -->
           <!-- partial:ui/_footer.html -->
