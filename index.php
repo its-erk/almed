@@ -3,7 +3,7 @@ require_once 'dist/config.php';
 
 // Fetch active products
 try {
-    $stmt = $pdo->prepare("SELECT * FROM products WHERE status='active' ORDER BY id DESC LIMIT 6");
+    $stmt = $pdo->prepare("SELECT * FROM products WHERE status='active' ORDER BY name ASC LIMIT 6");
     $stmt->execute();
     $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
@@ -31,15 +31,24 @@ function short_description($text, $max = 80) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Karibu | Afyako</title>
+
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <link rel="shortcut icon" href="dist/assets/images/favicon.ico" />
 
+    <!-- Afyako CSS -->
+    <link rel="stylesheet" href="dist/assets/css/afyako.css">
     <style>
         body {
+            font-family: 'Montserrat', sans-serif; 
             background: #f8f9fc;
         }
-        
+
         .hero {
             height: 100vh;
             background-image: url('assets/img/close-up-medic-expert-using-glucometer-sugar-level-measurements.jpg');
@@ -77,7 +86,8 @@ function short_description($text, $max = 80) {
         }
 
         .wishlist-btn {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(0,186,186,0.1);
+            color: var(--brand);
             width: 42px;
             height: 42px;
             display: flex;
@@ -88,43 +98,57 @@ function short_description($text, $max = 80) {
         }
 
         .wishlist-btn:hover {
-            background: #ff4d6d;
-            color: #fff;
-            transition: 0.3s;
-        }
+           background: var(--brand);
+           color: #fff;
+           transition: 0.3s;
+       }
 
-        .footer {
-            background: #111;
-            color: #d1d1d1;
-        }
+       .footer {
+        background: #111;
+        color: #d1d1d1;
+    }
 
-        .footer a {
-            color: #d1d1d1;
-            text-decoration: none;
-        }
+    .footer a {
+        color: #d1d1d1;
+        text-decoration: none;
+    }
 
-        .footer a:hover {
-            color: #fff;
-        }
+    .footer a:hover {
+        color: #fff;
+    }
 
-        .social-icons a {
-            width: 38px;
-            height: 38px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: #222;
-            border-radius: 50%;
-            margin: 0 5px;
-            font-size: 18px;
-            transition: 0.3s;
-        }
+    .social-icons a {
+        width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
 
-        .social-icons a:hover {
-            background: #0d6efd;
-            color: #fff;
-        }
-    </style>
+        background-color: var(--brand-soft);
+        color: var(--brand-dark);
+
+        border-radius: 50%;
+        margin: 0 6px;
+        font-size: 18px;
+
+        transition: background-color 0.25s ease,
+        color 0.25s ease,
+        transform 0.2s ease;
+    }
+
+    .social-icons a:hover,
+    .social-icons a:focus {
+        background-color: var(--brand);
+        color: #fff;
+        transform: translateY(-2px);
+    }
+
+    .social-icons a:focus-visible {
+        outline: 2px solid var(--brand);
+        outline-offset: 3px;
+    }
+
+</style>
 </head>
 <body>
 
@@ -137,10 +161,10 @@ function short_description($text, $max = 80) {
             </button>
             <div class="collapse navbar-collapse" id="navMenu">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#shop">Shop</a></li>
-                    <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="index.php">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.php#shop">Shop</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.php">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.php#contact">Contact</a></li>
                 </ul>
             </div>
         </div>
@@ -149,11 +173,11 @@ function short_description($text, $max = 80) {
     <!-- HERO -->
     <section class="hero text-center">
         <div class="container hero-content">
-            <h1 class="fw-bold display-4">Reliable Monitoring Kits For A Healthy You</h1>
+            <h1 class="fw-bold display-4">Reliable Health Monitoring</h1>
             <p class="lead mt-3">
-                Affordable. Accurate. Trusted by individuals and health facilities.
+                Health tracking made affordable, simple and reliable.
             </p>
-            <a href="#shop" class="btn btn-light rounded-pill btn-lg mt-4 px-4">Browse Products</a>
+            <a href="#shop" class="btn btn-primary rounded-pill btn-lg mt-4 px-4">Browse Products</a>
         </div>
     </section>
 
@@ -183,7 +207,7 @@ function short_description($text, $max = 80) {
                                 <div class="card-body text-center d-flex flex-column">
                                     <h6 class="fw-bold mb-1"><?= htmlspecialchars($product['name']) ?></h6>
                                     <p class="text-muted small flex-grow-1"><?= htmlspecialchars(short_description($product['description'])) ?></p>
-                                    <div class="fw-bold text-primary fs-6 mb-2">KES <?= number_format($product['price']) ?></div>
+                                    <div class="fw-bold fs-6 mb-2">KES <?= number_format($product['price']) ?></div>
                                     <button class="btn btn-primary rounded-pill w-100 mb-2">
                                         <i class="bi bi-cart-plus me-2"></i>Add to Cart
                                     </button>
@@ -263,7 +287,7 @@ function short_description($text, $max = 80) {
                     <h6 class="fw-bold text-white mb-3">Quick Links</h6>
                     <ul class="list-unstyled">
                         <li><a href="#shop">Shop Products</a></li>
-                        <li><a href="#about">About Us</a></li>
+                        <li><a href="about.php">About Us</a></li>
                         <li><a href="#contact">Contact</a></li>
                         <li><a href="#">Privacy Policy</a></li>
                     </ul>
@@ -272,28 +296,40 @@ function short_description($text, $max = 80) {
                 <!-- Contact -->
                 <div class="col-md-4 mb-4">
                     <h6 class="fw-bold text-white mb-3">Get in Touch</h6>
-                    <p>Email: support@afyako.com</p>
-                    <p>Phone: +254 728 407 599</p>
-                    <p>Nairobi, Kenya</p>
-                </div>
+                    <p>
+                      Email:
+                      <a href="mailto:support@afyako.com" target="_blank" rel="noopener">
+                        support@afyako.com
+                    </a>
+                </p>
 
-            </div>
+                <p>
+                  Phone:
+                  <a href="tel:+254728407599" target="_blank" rel="noopener">
+                    +254 728 407 599
+                </a>
+            </p>
 
-            <div class="text-center border-top border-secondary mt-4 py-3">
-                <small>© 2025 Afyako. All rights reserved.</small>
-            </div>
-
+            <p>Nairobi, Kenya</p>
         </div>
-    </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        const hero = document.querySelector('.hero');
+    </div>
 
-        window.addEventListener('scroll', () => {
-            const scrollY = window.scrollY;
-            hero.style.backgroundPosition = `center ${scrollY * 0.4}px`;
-        });
-    </script>
+    <div class="text-center border-top border-secondary mt-4 py-3">
+        <small>© 2025 Afyako. All rights reserved.</small>
+    </div>
+
+</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const hero = document.querySelector('.hero');
+
+    window.addEventListener('scroll', () => {
+        const scrollY = window.scrollY;
+        hero.style.backgroundPosition = `center ${scrollY * 0.4}px`;
+    });
+</script>
 </body>
 </html>

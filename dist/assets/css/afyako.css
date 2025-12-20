@@ -1,0 +1,231 @@
+/* =========================================================
+   BRAND VARIABLES
+   ========================================================= */
+:root {
+    --brand: #00baba;
+    --brand-dark: #009e9e;
+    --brand-soft: #e6f8f8;
+
+    --text-main: #1f2933;
+    --text-muted: #6b7280;
+    --text-light: #9ca3af;
+
+    --border-soft: #e5e7eb;
+}
+
+
+/* =========================================================
+   TEXT COLORS (BOOTSTRAP OVERRIDES)
+   ========================================================= */
+
+/* Primary = Brand */
+.text-primary {
+    color: var(--brand) !important;
+}
+
+/* Strong readable default text */
+.text-body,
+.text-main {
+    color: var(--text-main) !important;
+}
+
+/* Better muted text */
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+.text-light {
+    color: var(--text-light) !important;
+}
+
+/* Brand helpers */
+.text-brand {
+    color: var(--brand) !important;
+}
+
+.text-brand-dark {
+    color: var(--brand-dark) !important;
+}
+
+/* Semantic text */
+.text-success {
+    color: #16a34a !important;
+}
+
+.text-warning {
+    color: #d97706 !important;
+}
+
+.text-danger {
+    color: #dc2626 !important;
+}
+
+.text-info {
+    color: var(--brand) !important;
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+/* Primary buttons */
+.btn-primary {
+    background-color: var(--brand);
+    border-color: var(--brand);
+    color: #fff;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: var(--brand-dark);
+    border-color: var(--brand-dark);
+}
+
+/* Outline primary */
+.btn-outline-primary {
+    color: var(--brand);
+    border-color: var(--brand);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+    background-color: var(--brand);
+    border-color: var(--brand);
+    color: #fff;
+}
+
+
+/* =========================================================
+   LINKS
+   ========================================================= */
+
+a {
+    color: var(--brand);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--brand-dark);
+    text-decoration: underline;
+}
+
+
+/* =========================================================
+   BACKGROUNDS
+   ========================================================= */
+
+.bg-primary {
+    background-color: var(--brand) !important;
+}
+
+.bg-brand-soft {
+    background-color: var(--brand-soft) !important;
+}
+
+.bg-light {
+    background-color: #f9fafb !important;
+}
+
+
+/* =========================================================
+   BORDERS
+   ========================================================= */
+
+.border-primary {
+    border-color: var(--brand) !important;
+}
+
+.border-soft {
+    border-color: var(--border-soft) !important;
+}
+
+
+/* =========================================================
+   FORMS
+   ========================================================= */
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 0.15rem rgba(0, 186, 186, 0.25);
+}
+
+.form-check-input:checked {
+    background-color: var(--brand);
+    border-color: var(--brand);
+}
+
+
+/* =========================================================
+   TABLES
+   ========================================================= */
+
+.table th {
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+.table td {
+    color: var(--text-main);
+}
+
+.table-hover tbody tr:hover {
+    background-color: var(--brand-soft);
+}
+
+
+/* =========================================================
+   BADGES
+   ========================================================= */
+
+.badge.bg-primary {
+    background-color: var(--brand) !important;
+}
+
+.badge.bg-success {
+    background-color: #16a34a !important;
+}
+
+.badge.bg-warning {
+    background-color: #d97706 !important;
+}
+
+.badge.bg-danger {
+    background-color: #dc2626 !important;
+}
+
+
+/* =========================================================
+   UTILITIES
+   ========================================================= */
+
+.text-uppercase-soft {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.75rem;
+}
+
+.text-emphasis {
+    font-weight: 600;
+}
+
+.text-mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+
+/* =========================================================
+   CARDS (OPTIONAL BUT USEFUL)
+   ========================================================= */
+
+.card {
+    border-color: var(--border-soft);
+}
+
+.card-header {
+    background-color: #ffffff;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-soft);
+}
