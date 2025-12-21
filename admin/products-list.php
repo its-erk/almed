@@ -8,14 +8,47 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
   exit();
 }
 
+$filter = $_GET['filter'] ?? 'total';
+
+$where = '';
+$params = [];
+
+switch ($filter) {
+  case 'active':
+  $where = "WHERE p.status = ?";
+  $params[] = 'active';
+  break;
+
+  case 'inactive':
+  $where = "WHERE p.status = ?";
+  $params[] = 'inactive';
+  break;
+
+  case 'low-stock':
+  $where = "WHERE p.stock <= ?";
+  $params[] = 5;
+  break;
+
+  case 'total':
+  default:
+    // no filter
+  break;
+}
+
 // Fetch products with category name
-$stmt = $pdo->query("
-  SELECT p.id, p.name, p.sku, p.price, p.stock, p.status, p.description,
-  c.name AS category_name
-  FROM products p
-  LEFT JOIN categories c ON c.id = p.category_id
-  ORDER BY p.id ASC
-  ");
+$sql = "
+SELECT 
+p.id, p.name, p.sku, p.price, p.stock, p.status,
+p.description, p.image,
+c.name AS category_name
+FROM products p
+LEFT JOIN categories c ON c.id = p.category_id
+$where
+ORDER BY p.id ASC
+";
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -63,7 +96,17 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                   <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
                       <h4 class="card-title">Products</h4>
-                      <p class="card-description">Manage available products</p>
+                      <p class="card-description">
+                        <?php
+                        echo match ($filter) {
+                          'active'     => 'Showing active products',
+                          'inactive'   => 'Showing inactive products',
+                          'low-stock'  => 'Showing low stock products',
+                          default      => 'Showing all products',
+                        };
+                        ?>
+                      </p>
+
                     </div>
 
                     <a href="product-add.php" class="btn btn-primary btn-sm rounded-pill">
@@ -91,10 +134,13 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                           <tr>
                             <td><?= $index + 1 ?></td>
                             <td>
-                              <strong><?= htmlspecialchars($p['name']) ?></strong><br>
-                              <small class="text-muted">
-                                <?= htmlspecialchars(strlen($p['description']) > 50 ? substr($p['description'], 0, 50) . '…' : $p['description']) ?>
-                              </small>
+                              <div class="d-flex ">
+                                <img src="../dist/assets/images/products/<?= htmlspecialchars($p['image']) ?>" alt="<?= htmlspecialchars($p['name']) ?>">
+                                <div>
+                                  <h6><?= htmlspecialchars($p['name']) ?></h6>
+                                  <p class="text-muted"><?= htmlspecialchars(strlen($p['description']) > 50 ? substr($p['description'], 0, 50) . '…' : $p['description']) ?></p>
+                                </div>
+                              </div>
                             </td>
                             <td><?= htmlspecialchars($p['sku']) ?></td>
                             <td><?= htmlspecialchars($p['category_name'] ?? '-') ?></td>

@@ -7,113 +7,92 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
   exit();
 }
 
+$userId = $_GET['id'] ?? null;
+if (!$userId || !is_numeric($userId)) {
+  header('Location: users.php');
+  exit();
+}
+
 $error = '';
 $success = '';
 
+/* Fetch user */
+$stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+$stmt->execute([$userId]);
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$user) {
+  header('Location: users.php');
+  exit();
+}
+
+/* Fetch roles */
+$roles = $pdo->query("SELECT id, role_name FROM roles WHERE status='Active' ORDER BY role_name")->fetchAll(PDO::FETCH_ASSOC);
+
+/* Handle update */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-  $fullName = trim($_POST['fullName'] ?? '');
-  $username = trim($_POST['username'] ?? '');
-  $email    = trim($_POST['email'] ?? '');
-  $phone    = trim($_POST['phone'] ?? '');
+  $fullName = trim($_POST['fullName']);
+  $username = trim($_POST['username']);
+  $email    = trim($_POST['email']);
   $role_id  = $_POST['role'] ?? null;
-  $password = $_POST['password'] ?? '';
-  $confirmPassword = $_POST['confirmPassword'] ?? '';
   $status   = $_POST['status'] ?? 'Active';
+  $password = $_POST['password'] ?? '';
+  $confirm  = $_POST['confirmPassword'] ?? '';
 
-  // ---------- BASIC VALIDATION ----------
-  if (!$fullName || !$username || !$email || !$role_id || !$password || !$confirmPassword) {
-    $error = "Please fill in all required fields.";
-  } elseif ($password !== $confirmPassword) {
-    $error = "Passwords do not match.";
+  if (!$fullName || !$username || !$email || !$role_id) {
+    $error = "Required fields missing.";
   }
 
-  // ---------- PHONE VALIDATION (KENYA) ----------
-  if (!$error && $phone) {
-    // remove spaces
-    $phone = preg_replace('/\s+/', '', $phone);
-
-    // Normalize +254xxxxxxxxx
-    if (preg_match('/^(07|01)[0-9]{8}$/', $phone)) {
-      $phone = '+254' . substr($phone, 1);
-    } elseif (preg_match('/^\+254[0-9]{9}$/', $phone)) {
-      // already OK
+  /* Password (optional) */
+  if (!$error && $password !== '') {
+    if ($password !== $confirm) {
+      $error = "Passwords do not match.";
     } else {
-      $error = "Invalid phone number format.";
+      $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
     }
   }
 
-  // ---------- IMAGE UPLOAD ----------
-  $profilePic = null;
+  /* Profile picture (optional) */
+  $profilePic = $user['profile_pic'];
 
   if (!$error && !empty($_FILES['profilePic']['name'])) {
 
-    $allowed = ['jpg', 'jpeg', 'png', 'webp'];
+    $allowed = ['jpg','jpeg','png','webp'];
     $ext = strtolower(pathinfo($_FILES['profilePic']['name'], PATHINFO_EXTENSION));
 
     if (!in_array($ext, $allowed)) {
-      $error = "Invalid image format. JPG, PNG, or WEBP only.";
-    } elseif ($_FILES['profilePic']['size'] > 2 * 1024 * 1024) {
-      $error = "Image size must be less than 2MB.";
-    } elseif ($_FILES['profilePic']['error'] !== UPLOAD_ERR_OK) {
-      $error = "Upload error code: " . $_FILES['profilePic']['error'];
+      $error = "Invalid image format.";
     } else {
-
       $uploadDir = __DIR__ . '/../dist/assets/images/profilepics/';
-      if (!is_dir($uploadDir) && !mkdir($uploadDir, 0755, true)) {
-        $error = "Failed to create upload directory.";
-      }
+      if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
 
-      if (!$error) {
-        $profilePic = uniqid('user_', true) . '.' . $ext;
-        $uploadPath = $uploadDir . $profilePic;
-
-        if (!move_uploaded_file($_FILES['profilePic']['tmp_name'], $uploadPath)) {
-          $error = "Failed to move uploaded file.";
-        }
-      }
+      $profilePic = uniqid('user_', true) . '.' . $ext;
+      move_uploaded_file($_FILES['profilePic']['tmp_name'], $uploadDir . $profilePic);
     }
   }
 
-  // ---------- INSERT ----------
+  /* Update */
   if (!$error) {
 
-    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+    $sql = "UPDATE users SET 
+    full_name=?, username=?, email=?, role_id=?, status=?, profile_pic=?";
 
-    try {
-      $stmt = $pdo->prepare("
-        INSERT INTO users 
-          (full_name, username, email, phone, role_id, password, status, profile_pic, created_at)
-        VALUES
-          (?, ?, ?, ?, ?, ?, ?, ?, NOW())
-      ");
+    $params = [$fullName, $username, $email, $role_id, $status, $profilePic];
 
-      $stmt->execute([
-        $fullName,
-        $username,
-        $email,
-        $phone ?: null,
-        $role_id,
-        $hashedPassword,
-        $status,
-        $profilePic
-      ]);
-
-      $success = "User added successfully!";
-
-    } catch (PDOException $e) {
-      $error = "Database error: " . $e->getMessage();
+    if (!empty($hashedPassword)) {
+      $sql .= ", password=?";
+      $params[] = $hashedPassword;
     }
-  }
-}
 
-// Fetch roles
-try {
-  $stmt = $pdo->query("SELECT id, role_name FROM roles WHERE status = 'Active' ORDER BY role_name ASC");
-  $roles = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-  error_log("Failed to fetch roles: " . $e->getMessage());
-  $roles = [];
+    $sql .= " WHERE id=?";
+    $params[] = $userId;
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+
+    $success = "User updated successfully.";
+  }
 }
 ?>
 
@@ -123,7 +102,7 @@ try {
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Add User | Afyako</title>
+  <title>Edit User: <?= htmlspecialchars($user['full_name']) ?> | Afyako</title>
   <!-- plugins:css -->
   <link rel="stylesheet" href="../dist/assets/vendors/feather/feather.css">
   <link rel="stylesheet" href="../dist/assets/vendors/mdi/css/materialdesignicons.min.css">
@@ -170,80 +149,71 @@ try {
             <div class="col-lg-12 grid-margin stretch-card">
               <div class="card">
                 <div class="card-body">
-                  <h4 class="card-title">Add New User</h4>
-                  <p class="card-description">Fill in user details below</p>
+                  <h4 class="card-title">Edit User: <?= htmlspecialchars($user['full_name']) ?></h4>
+                  <p class="card-description">Update user details below</p>
 
                   <form method="POST" enctype="multipart/form-data">
 
-                    <!-- Basic Info -->
                     <div class="form-group mb-3">
-                      <label for="fullName">Full Name</label>
-                      <input type="text" name="fullName" id="fullName" class="form-control" placeholder="Enter full name" required>
+                      <label>Full Name</label>
+                      <input type="text" name="fullName" class="form-control"
+                      value="<?= htmlspecialchars($user['full_name']) ?>" required>
                     </div>
 
                     <div class="form-group mb-3">
-                      <label for="username">Username</label>
-                      <input type="text" name="username" id="username" class="form-control" placeholder="Enter username" required>
+                      <label>Username</label>
+                      <input type="text" name="username" class="form-control"
+                      value="<?= htmlspecialchars($user['username']) ?>" required>
                     </div>
 
                     <div class="form-group mb-3">
-                      <label for="email">Email</label>
-                      <input type="email" name="email" id="email" class="form-control" placeholder="Enter email" required>
+                      <label>Email</label>
+                      <input type="email" name="email" class="form-control"
+                      value="<?= htmlspecialchars($user['email']) ?>" required>
                     </div>
 
                     <div class="form-group mb-3">
-                      <label for="phone">Phone</label>
-                      <input type="tel" name="phone" id="phone" class="form-control" pattern="^(07|01)[0-9]{8}$" placeholder="e.g. 0712345678" maxlength="10" required>
-                    </div>
-
-                    <!-- Access Control -->
-                    <div class="form-group mb-3">
-                      <label for="role">Role</label>
-                      <select name="role" id="role" class="form-select" required>
-                        <option value="" disabled selected>Select role</option>
+                      <label>Role</label>
+                      <select name="role" class="form-select" required>
                         <?php foreach ($roles as $role): ?>
-                          <option value="<?= $role['id'] ?>">
+                          <option value="<?= $role['id'] ?>"
+                            <?= $role['id'] == $user['role_id'] ? 'selected' : '' ?>>
                             <?= htmlspecialchars($role['role_name']) ?>
                           </option>
                         <?php endforeach; ?>
                       </select>
                     </div>
 
-                    <!-- <div class="form-group mb-3">
-                      <label for="status">Status</label>
-                      <select name="status" id="status" class="form-select" required>
-                        <option value="Active" selected>Active</option>
-                        <option value="Inactive">Inactive</option>
+                    <div class="form-group mb-3">
+                      <label>Status</label>
+                      <select name="status" class="form-select">
+                        <option value="Active" <?= $user['status']=='Active'?'selected':'' ?>>Active</option>
+                        <option value="Inactive" <?= $user['status']=='Inactive'?'selected':'' ?>>Inactive</option>
                       </select>
-                    </div> -->
-
-                    <!-- Credentials -->
-                    <div class="form-group mb-3">
-                      <label for="password">Password</label>
-                      <input type="password" name="password" id="password" class="form-control" placeholder="Enter password" required>
                     </div>
 
                     <div class="form-group mb-3">
-                      <label for="confirmPassword">Confirm Password</label>
-                      <input type="password" name="confirmPassword" id="confirmPassword" class="form-control" placeholder="Confirm password" required>
+                      <label>New Password (leave blank to keep)</label>
+                      <input type="password" name="password" class="form-control" placeholder="New Password">
                     </div>
 
-                    <!-- Profile Picture -->
+                    <div class="form-group mb-3">
+                      <label>Confirm Password</label>
+                      <input type="password" name="confirmPassword" class="form-control" placeholder="Confirm Password">
+                    </div>
+
                     <div class="form-group mb-4">
                       <label>Profile Picture</label>
-                      <input type="file" name="profilePic" id="profilePic" class="file-upload-default" accept="image/*">
+                      <input type="file" name="profilePic" class="file-upload-default">
                       <div class="input-group">
-                        <input type="text" class="form-control file-upload-info" disabled placeholder="Upload profile picture">
-                        <button class="file-upload-browse btn btn-primary" type="button">
-                          Upload
-                        </button>
+                        <input type="text" class="form-control file-upload-info" value="<?= htmlspecialchars($user['profile_pic']) ?>" placeholder="Profile Picture" disabled>
+                        <button class="btn btn-primary file-upload-browse" type="button">Upload</button>
                       </div>
                     </div>
 
-                    <!-- Actions -->
                     <div class="d-flex gap-2">
-                      <button type="reset" class="btn btn-light">Cancel</button>
-                      <button type="submit" class="btn btn-primary">Add User</button>
+                      <a href="users.php" class="btn btn-light">Cancel</a>
+                      <button type="submit" class="btn btn-primary">Update User</button>
                     </div>
 
                   </form>

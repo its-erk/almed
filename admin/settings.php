@@ -1,3 +1,39 @@
+<?php
+session_start();
+require_once('../dist/config.php');
+
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+  header('Location: ../auth/login.php');
+  exit();
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cleanup_profile_pics'])) {
+
+  $dir = __DIR__ . '/../dist/assets/images/profilepics/';
+
+  // Fetch all profile pics in use
+  $stmt = $pdo->query("SELECT profile_pic FROM users WHERE profile_pic IS NOT NULL");
+  $usedImages = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+  $files = scandir($dir);
+  $deleted = 0;
+
+  foreach ($files as $file) {
+    if ($file === '.' || $file === '..') continue;
+
+    if (!in_array($file, $usedImages)) {
+      if (unlink($dir . $file)) {
+        $deleted++;
+      }
+    }
+  }
+
+  $_SESSION['success'] = "$deleted unused profile pictures deleted.";
+  header("Location: settings.php");
+  exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,6 +69,38 @@
       <!-- partial -->
       <div class="main-panel">
         <div class="content-wrapper">
+
+          <?php if (!empty($_SESSION['error'])): ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <?= htmlspecialchars($_SESSION['error']) ?>
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <?php unset($_SESSION['error']); ?>
+          <?php endif; ?>
+
+          <?php if (!empty($_SESSION['success'])): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              <?= htmlspecialchars($_SESSION['success']) ?>
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <?php unset($_SESSION['success']); ?>
+          <?php endif; ?>
+
+
+
+          <!-- Alerts -->
+          <?php if(!empty($error)): ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <?= htmlspecialchars($error) ?>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          <?php elseif(!empty($success)): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              <?= htmlspecialchars($success) ?>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          <?php endif; ?>
+
           <div class="row">
             <div class="col-12 grid-margin stretch-card">
               <div class="card">
@@ -105,31 +173,42 @@
             </div>
 
           </div>
+
+          <div class="row">
+            <form action="cleanup-profile-pics.php" method="POST"
+            onsubmit="return confirm('Delete unused profile pictures? This action cannot be undone.')">
+            <button type="submit" class="btn btn-danger">
+              Delete Unused Profile Pictures
+            </button>
+          </form>
+
         </div>
-        <!-- content-wrapper ends -->
-        <!-- partial:ui/_footer.html -->
-        <?php include 'ui/footer.php'; ?>
-        <!-- partial -->
+
       </div>
-      <!-- main-panel ends -->
+      <!-- content-wrapper ends -->
+      <!-- partial:ui/_footer.html -->
+      <?php include 'ui/footer.php'; ?>
+      <!-- partial -->
     </div>
-    <!-- page-body-wrapper ends -->
+    <!-- main-panel ends -->
   </div>
-  <!-- container-scroller -->
-  <!-- plugins:js -->
-  <script src="../dist/assets/vendors/js/vendor.bundle.base.js"></script>
-  <script src="../dist/assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
-  <!-- endinject -->
-  <!-- Plugin js for this page -->
-  <!-- End plugin js for this page -->
-  <!-- inject:js -->
-  <script src="../dist/assets/js/off-canvas.js"></script>
-  <script src="../dist/assets/js/template.js"></script>
-  <script src="../dist/assets/js/settings.js"></script>
-  <script src="../dist/assets/js/hoverable-collapse.js"></script>
-  <script src="../dist/assets/js/todolist.js"></script>
-  <!-- endinject -->
-  <!-- Custom js for this page-->
-  <!-- End custom js for this page-->
+  <!-- page-body-wrapper ends -->
+</div>
+<!-- container-scroller -->
+<!-- plugins:js -->
+<script src="../dist/assets/vendors/js/vendor.bundle.base.js"></script>
+<script src="../dist/assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+<!-- endinject -->
+<!-- Plugin js for this page -->
+<!-- End plugin js for this page -->
+<!-- inject:js -->
+<script src="../dist/assets/js/off-canvas.js"></script>
+<script src="../dist/assets/js/template.js"></script>
+<script src="../dist/assets/js/settings.js"></script>
+<script src="../dist/assets/js/hoverable-collapse.js"></script>
+<script src="../dist/assets/js/todolist.js"></script>
+<!-- endinject -->
+<!-- Custom js for this page-->
+<!-- End custom js for this page-->
 </body>
 </html>

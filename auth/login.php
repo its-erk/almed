@@ -33,37 +33,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Please enter both username/email and password.";
     } else {
         try {
-            // Use unique placeholders for PDO
+            // Fetch user with role
             $stmt = $pdo->prepare("
-                SELECT * FROM users 
-                WHERE (username = :username OR email = :email)
-                AND status = 'active'
+                SELECT u.*, r.role_name 
+                FROM users u
+                LEFT JOIN roles r ON u.role_id = r.id
+                WHERE (u.username = :username OR u.email = :email)
+                AND u.status = 'active'
                 LIMIT 1
             ");
             $stmt->execute([
                 'username' => $username,
                 'email' => $username
             ]);
-            $user = $stmt->fetch();
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$user) {
-                // No active user found
                 $error = "User not found or inactive.";
             } elseif (!password_verify($password, $user['password'])) {
-                // User exists but wrong password
                 $error = "Incorrect password.";
             } else {
                 // Login successful
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['full_name'] = !empty($user['full_name']) ? $user['full_name'] : $user['username'];
-                $_SESSION['role'] = $user['role'];
+                $_SESSION['role'] = strtolower($user['role_name']); // admin, user, customer, etc.
 
                 // Update last login
                 $updateStmt = $pdo->prepare("UPDATE users SET last_login = NOW() WHERE id = :id");
                 $updateStmt->execute(['id' => $user['id']]);
 
                 // Redirect based on role
-                switch ($user['role']) {
+                switch ($_SESSION['role']) {
                     case 'admin':
                         header("Location: ../admin/dashboard.php");
                         exit;
@@ -73,10 +73,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     case 'customer':
                         header("Location: ../customer/dashboard.php");
                         exit;
+                    default:
+                        // Unknown role, logout just in case
+                        session_destroy();
+                        $error = "Your role is not recognized.";
                 }
             }
         } catch (PDOException $e) {
-            // Log errors, show generic message
             error_log("Login error: " . $e->getMessage());
             $error = "An internal error occurred. Please try again later.";
         }

@@ -32,7 +32,13 @@ $totalStock        = $pdo->query("SELECT SUM(stock) FROM products")->fetchColumn
   <link rel="stylesheet" href="../dist/assets/vendors/css/vendor.bundle.base.css">
   <link rel="stylesheet" href="../dist/assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.css">
   <!-- endinject -->
+  <!-- inject:css -->
+  <link rel="stylesheet" href="../dist/assets/css/style.css">
+  <!-- endinject -->
+  <link rel="shortcut icon" href="../dist/assets/images/favicon.png" />
   <!-- Plugin css for this page -->
+  <link rel="stylesheet" href="../dist/assets/vendors/datatables.net-bs4/dataTables.bootstrap4.css">
+  <link rel="stylesheet" type="text/css" href="../dist/assets/js/select.dataTables.min.css">
   <!-- End plugin css for this page -->
   <!-- inject:css -->
   <link rel="stylesheet" href="../dist/assets/css/style.css">
@@ -59,29 +65,33 @@ $totalStock        = $pdo->query("SELECT SUM(stock) FROM products")->fetchColumn
                   <ul class="list-group list-group-flush mt-3">
 
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <span><i class="mdi mdi-cube-outline text-primary me-2"></i>Total Products</span>
-                      <span class="badge bg-primary rounded-pill"><?= $totalProducts ?></span>
+                      <a href="products-list.php?filter=total" class="d-flex justify-content-between align-items-center w-100 text-decoration-none text-dark">
+                        <span><i class="mdi mdi-cube-outline text-primary me-2"></i>Total Products</span>
+                        <span class="badge bg-primary rounded-pill"><?= $totalProducts ?></span>
+                      </a>
                     </li>
 
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <span><i class="mdi mdi-check-circle-outline text-success me-2"></i>Active Products</span>
-                      <span class="badge bg-success rounded-pill"><?= $activeProducts ?></span>
+                      <a href="products-list.php?filter=active" class="d-flex justify-content-between align-items-center w-100 text-decoration-none text-dark">
+                        <span><i class="mdi mdi-check-circle-outline text-success me-2"></i>Active Products</span>
+                        <span class="badge bg-success rounded-pill"><?= $activeProducts ?></span>
+                      </a>
                     </li>
 
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <span><i class="mdi mdi-close-circle-outline text-danger me-2"></i>Inactive Products</span>
-                      <span class="badge bg-danger rounded-pill"><?= $inactiveProducts ?></span>
+                      <a href="products-list.php?filter=inactive" class="d-flex justify-content-between align-items-center w-100 text-decoration-none text-dark">
+                        <span><i class="mdi mdi-close-circle-outline text-danger me-2"></i>Inactive Products</span>
+                        <span class="badge bg-danger rounded-pill"><?= $inactiveProducts ?></span>
+                      </a>
                     </li>
 
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <span><i class="mdi mdi-alert-circle-outline text-warning me-2"></i>Low Stock</span>
-                      <span class="badge bg-warning text-dark rounded-pill"><?= $lowStockProducts ?></span>
+                      <a href="products-list.php?filter=low-stock" class="d-flex justify-content-between align-items-center w-100 text-decoration-none text-dark">
+                        <span><i class="mdi mdi-alert-circle-outline text-warning me-2"></i>Low Stock</span>
+                        <span class="badge bg-warning text-dark rounded-pill"><?= $lowStockProducts ?></span>
+                      </a>
                     </li>
 
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <span><i class="mdi mdi-warehouse text-info me-2"></i>Total Stock</span>
-                      <span class="badge bg-info rounded-pill"><?= $totalStock ?></span>
-                    </li>
 
                   </ul>
                 </div>
@@ -175,6 +185,8 @@ $totalStock        = $pdo->query("SELECT SUM(stock) FROM products")->fetchColumn
   <script src="../dist/assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
   <!-- endinject -->
   <!-- Plugin js for this page -->
+  <script src="../dist/assets/vendors/chart.js/chart.umd.js"></script>
+  <script src="../dist/assets/vendors/progressbar.js/progressbar.min.js"></script>
   <!-- End plugin js for this page -->
   <!-- inject:js -->
   <script src="../dist/assets/js/off-canvas.js"></script>
@@ -184,6 +196,8 @@ $totalStock        = $pdo->query("SELECT SUM(stock) FROM products")->fetchColumn
   <script src="../dist/assets/js/todolist.js"></script>
   <!-- endinject -->
   <!-- Custom js for this page-->
+  <script src="../dist/assets/js/jquery.cookie.js" type="text/javascript"></script>
+  <script src="../dist/assets/js/dashboard.js"></script>
   <!-- End custom js for this page-->
 </body>
 </html>

@@ -10,8 +10,13 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 
 // Fetch all users
 try {
-  $stmt = $pdo->query("SELECT * FROM users ORDER BY created_at DESC");
-  $users = $stmt->fetchAll();
+  $stmt = $pdo->query("
+    SELECT u.*, r.role_name 
+    FROM users u
+    LEFT JOIN roles r ON u.role_id = r.id
+    ORDER BY u.created_at DESC
+    ");
+  $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
   error_log("Failed to fetch users: " . $e->getMessage());
   $users = [];
@@ -93,22 +98,22 @@ try {
                             <td><strong><?= htmlspecialchars($user['full_name'] ?: $user['username']) ?></strong></td>
                             <td><?= htmlspecialchars($user['username']) ?></td>
                             <td><?= htmlspecialchars($user['email']) ?></td>
-                            <td><?= ucfirst($user['role']) ?></td>
+                            <td><?= htmlspecialchars($user['role_name'] ?? 'N/A') ?></td>
                             <td>
                               <?php
-                              $statusClass = match($user['status']) {
+                              $statusClass = match($user['status'] ?? '') {
                                 'active' => 'badge-success',
                                 'inactive' => 'badge-secondary',
                                 'suspended' => 'badge-danger',
                                 default => 'badge-light'
                               };
                               ?>
-                              <span class="badge <?= $statusClass ?>"><?= ucfirst($user['status']) ?></span>
+                              <span class="badge <?= $statusClass ?>"><?= ucfirst($user['status'] ?? 'Unknown') ?></span>
                             </td>
-                            <td><?= date('d M Y', strtotime($user['created_at'])) ?></td>
+                            <td><?= !empty($user['created_at']) ? date('d M Y', strtotime($user['created_at'])) : '-' ?></td>
                             <td class="text-end">
-                              <a href="user-view.php?id=<?= $user['id'] ?>" class="btn btn-sm btn-outline-primary">View</a>
-                              <a href="user-edit.php?id=<?= $user['id'] ?>" class="btn btn-sm btn-outline-warning">Edit</a>
+                              <a href="user-edit.php?id=<?= $user['id'] ?>" class="btn btn-sm btn-outline-primary">Edit</a>
+                              <a href="user-view.php?id=<?= $user['id'] ?>" class="btn btn-sm btn-outline-info">View</a>
                             </td>
                           </tr>
                         <?php endforeach; ?>
@@ -119,6 +124,7 @@ try {
                       <?php endif; ?>
                     </tbody>
                   </table>
+
                 </div>
 
               </div>

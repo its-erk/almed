@@ -66,7 +66,7 @@ try {
             <div class="col-lg-4 grid-margin">
               <div class="card">
                 <div class="card-body text-center">
-                  <img src="../dist/assets/images/faces/face1.jpg" alt="profile" class="img-lg rounded-circle mb-3">
+                  <img src="../dist/assets/images/profilepics/<?= htmlspecialchars($user['profile_pic']); ?>" alt="profile" class="img-lg rounded-circle mb-3">
                   <h4 class="card-title"><?= htmlspecialchars($user['full_name'] ?: $user['username']) ?></h4>
                   <p class="text-muted"><?= ucfirst($user['role']) ?></p>
                   <a href="profile-edit.php" class="btn btn-primary btn-sm">Edit Profile</a>
